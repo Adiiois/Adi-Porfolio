@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Quiz Generator - Study Smart</title>
+    <link rel="stylesheet" href="quiz-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>PDF Quiz Generator</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="historyBtn" title="Quiz History">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button class="btn-icon" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section id="uploadSection" class="section active">
+                <div class="upload-container">
+                    <div class="upload-header">
+                        <h2>Transform Your PDFs into Interactive Quizzes</h2>
+                        <p>Upload a PDF document and let AI generate study questions for you</p>
+                    </div>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Drag & Drop your PDF here</h3>
+                        <p>or</p>
+                        <label for="fileInput" class="btn btn-primary">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </label>
+                        <input type="file" id="fileInput" accept=".pdf" hidden>
+                        <p class="file-info">Supported format: PDF (Max 10MB)</p>
+                    </div>
+
+                    <div class="processing-area" id="processingArea" style="display: none;">
+                        <div class="spinner"></div>
+                        <h3>Processing your PDF...</h3>
+                        <p id="processingStatus">Extracting text from document</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-settings" id="quizSettings" style="display: none;">
+                        <h3>Quiz Settings</h3>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label for="numQuestions">Number of Questions</label>
+                                <input type="number" id="numQuestions" min="5" max="50" value="10">
+                            </div>
+                            <div class="setting-item">
+                                <label for="difficulty">Difficulty Level</label>
+                                <select id="difficulty">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="questionTypes">Question Types</label>
+                                <select id="questionTypes">
+                                    <option value="mixed" selected>Mixed</option>
+                                    <option value="multiple">Multiple Choice Only</option>
+                                    <option value="truefalse">True/False Only</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="timerEnabled">Enable Timer</label>
+                                <input type="checkbox" id="timerEnabled" class="toggle-switch">
+                            </div>
+                        </div>
+                        <button class="btn btn-success" id="generateQuizBtn">
+                            <i class="fas fa-magic"></i> Generate Quiz
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="quizSection" class="section">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <div class="quiz-info">
+                            <h2 id="quizTitle">Quiz in Progress</h2>
+                            <div class="quiz-meta">
+                                <span class="question-counter">
+                                    Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span>
+                                </span>
+                                <span class="timer" id="timer" style="display: none;">
+                                    <i class="fas fa-clock"></i> <span id="timeLeft">10:00</span>
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" id="exitQuizBtn">
+                            <i class="fas fa-times"></i> Exit Quiz
+                        </button>
+                    </div>
+
+                    <div class="progress-indicator">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="quizProgress"></div>
+                        </div>
+                    </div>
+
+                    <div class="question-card" id="questionCard">
+                        <div class="question-text" id="questionText">
+                            Loading question...
+                        </div>
+                        <div class="answers-container" id="answersContainer">
+                            <!-- Answers will be dynamically inserted -->
+                        </div>
+                    </div>
+
+                    <div class="quiz-navigation">
+                        <button class="btn btn-outline" id="prevBtn" disabled>
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="btn btn-primary" id="nextBtn">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="btn btn-success" id="submitQuizBtn" style="display: none;">
+                            <i class="fas fa-check"></i> Submit Quiz
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="section">
+                <div class="results-container">
+                    <div class="results-header">
+                        <div class="score-circle" id="scoreCircle">
+                            <svg viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" class="score-bg"></circle>
+                                <circle cx="100" cy="100" r="90" class="score-fill" id="scoreFill"></circle>
+                            </svg>
+                            <div class="score-text">
+                                <span class="score-percentage" id="scorePercentage">0%</span>
+                                <span class="score-label">Score</span>
+                            </div>
+                        </div>
+                        <div class="results-summary">
+                            <h2>Quiz Complete!</h2>
+                            <div class="summary-stats">
+                                <div class="stat-item correct">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span class="stat-value" id="correctCount">0</span>
+                                    <span class="stat-label">Correct</span>
+                                </div>
+                                <div class="stat-item incorrect">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span class="stat-value" id="incorrectCount">0</span>
+                                    <span class="stat-label">Incorrect</span>
+                                </div>
+                                <div class="stat-item time">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="stat-value" id="timeTaken">0:00</span>
+                                    <span class="stat-label">Time</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button class="btn btn-primary" id="reviewBtn">
+                            <i class="fas fa-eye"></i> Review Answers
+                        </button>
+                        <button class="btn btn-success" id="retakeBtn">
+                            <i class="fas fa-redo"></i> Retake Quiz
+                        </button>
+                        <button class="btn btn-outline" id="newQuizBtn">
+                            <i class="fas fa-file-upload"></i> Upload New PDF
+                        </button>
+                    </div>
+
+                    <div class="review-section" id="reviewSection" style="display: none;">
+                        <h3>Answer Review</h3>
+                        <div id="reviewContent">
+                            <!-- Review content will be dynamically inserted -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with <i class="fas fa-heart"></i> for better studying</p>
+        </footer>
+    </div>
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Set PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <script src="quiz-app.js"></script>
+</body>
+</html>
